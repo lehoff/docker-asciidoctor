@@ -39,6 +39,12 @@ RUN apk add --no-cache \
     unzip \
     which
 
+RUN addgroup --system appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /data/
+
+
+
 # Installing Ruby Gems needed in the image
 # including asciidoctor itself
 RUN apk add --no-cache --virtual .rubymakedepends \
@@ -64,7 +70,33 @@ RUN apk add --no-cache --virtual .rubymakedepends \
     slim \
     thread_safe \
     tilt \
+  && apk add --update npm \
+#  && npm -g config set user root \
+  && apk --no-cache --virtual .canvas-build-deps add \
+        build-base \
+        cairo-dev \
+        jpeg-dev \
+        pango-dev \
+        giflib-dev \
+        pixman-dev \
+        pangomm-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+    && apk --no-cache add \
+        pixman \
+        cairo \
+        pango \
+        giflib \
+#  && npm -g config set user root \
+  && npm config set user 0 \
+  && npm config set unsafe-perm true \
+  && npm install --build-from-source -g vega-cli vega vega-lite vega-embed \
+  && echo `which vl2vg` \
+#    && apk del .canvas-build-deps \
   && apk del -r --no-cache .rubymakedepends
+ 
+ENV PATH /data/node_modules/.bin:$PATH
+ENV NODE_PATH /data/node_modules/
 
 # Installing Python dependencies for additional
 # functionnalities as diagrams or syntax highligthing
@@ -80,6 +112,8 @@ RUN apk add --no-cache --virtual .pythonmakedepends \
     Pygments \
     seqdiag \
   && apk del -r --no-cache .pythonmakedepends
+
+USER appuser
 
 WORKDIR /documents
 VOLUME /documents

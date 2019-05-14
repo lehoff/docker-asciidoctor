@@ -68,6 +68,10 @@ teardown() {
   docker run -t --rm "${DOCKER_IMAGE_NAME_TO_TEST}" which asciidoctor-confluence
 }
 
+@test "vl2vg is installed and in the path" {
+  docker run -t --rm "${DOCKER_IMAGE_NAME_TO_TEST}" which vl2vg
+}
+
 @test "We can generate an HTML document from basic example" {
   docker run -t --rm \
     -v "${BATS_TEST_DIRNAME}":/documents/ \
